@@ -1,25 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+using SmartAIEssayChecker.Models.Users;
 
-// Add services to the container.
+namespace MyNamespace;
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+internal class Program
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    static void Main(string[] args)
+    {
+        var users = new User()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Anvar"
+        };
+    }
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
