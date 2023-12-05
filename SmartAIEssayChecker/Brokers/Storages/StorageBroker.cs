@@ -12,12 +12,20 @@ public class StorageBroker : EFxceptionsContext
     private DbSet<Essay> Essays { get; set; }
     private DbSet<Feedback> Feedbacks { get; set; }
 
-    public async Task<User> InsertClientAsync(User user)
+    public async Task<User> InsertUserAsync(User user)
     {
         await this.Users.AddAsync(user);
         await this.SaveChangesAsync();
         return user;
     }
+
+    public IQueryable<User> SelectAllUsers()
+    {
+        return this.Users.AsQueryable();
+    }
+
+    public async Task<User> SelectUserById(Guid userId)=>
+        await this.Users.FindAsync(userId);
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
