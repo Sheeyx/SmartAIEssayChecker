@@ -1,10 +1,12 @@
 using SmartAIEssayChecker.Brokers.Storages;
 using SmartAIEssayChecker.Models.Users;
 using SmartAIEssayChecker.Models.Users.Exceptions;
+using Xeptions;
 
 namespace MyNamespace.Services.Users;
 
-public partial class UserService
+internal class UserService : Xeption
+
 {
     private void ValidationOnAdd(User user)
     {
@@ -47,21 +49,34 @@ public partial class UserService
         {
             throw new NullUserException();
         }
-    }
+
 
     private static void Validate(params (dynamic Rule, string Parameter)[] validations)
-    {
-        var invalidUserException = new InvalidUserException();
 
-        foreach ((dynamic rule, string parameter) in validations)
-        {
-            if (rule.Condition)
-            {
-                invalidUserException.UpsertDataList(
-                    key: parameter,
-                    value: rule.Message);
-            }
-        }
-        invalidUserException.ThrowIfContainsErrors();
+        Validate(
+            (Rule: isInvalid(user.Id), Parameter: nameof(user.Id)),
+            (Rule: isInvalid(user.Name), Parameter: nameof(user.Name))
+        );
+        
+        return this.storageBroker.InsertUserAsync(user);
     }
+
+    private dynamic isInvalid(Guid id) => new
+    {
+        Condition = id == default,
+        Message = "Id is required"
+    };
+
+    private dynamic isInvalid(string text) => new
+    {
+        Conditon = String.IsNullOrWhiteSpace(text),
+        Message = "Text is required"
+    };
+ 
+
+            invalidUserException.ThrowIfContainsErrors();
+        }
+    }
+    
+
 }

@@ -10,4 +10,6 @@ public interface IUserService
     ValueTask<User> RetrieveUserByIdAsync(Guid userId);
     ValueTask<User> RemoveUserAsync(Guid userId);
     ValueTask<User> ModifyUserAsync(User user);
+    ValueTask<User> ModifyUserAsync(User user);
+    ValueTask<User> RemoveUserAsync(Guid userId);
 }
