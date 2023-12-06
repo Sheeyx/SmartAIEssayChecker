@@ -4,23 +4,64 @@ using SmartAIEssayChecker.Models.Users.Exceptions;
 
 namespace MyNamespace.Services.Users;
 
-internal class UserService
+public partial class UserService
 {
-    private readonly StorageBroker storageBroker;
-
-    public UserService()
+    private void ValidationOnAdd(User user)
     {
-        this.storageBroker = new StorageBroker();
+        ValidateUserNotNull(user);
+
+        Validate(
+            (Rule: IsInvalid(user.Id), Parameter: nameof(user.Id)),
+            (Rule: IsInvalid(user.Name), Parameter: nameof(user.Name)));
     }
 
-    internal Task<User> AddUserAsync(User user)
+    private void ValidateUserOnModify(User user)
+    {
+        ValidateUserNotNull(user);
+
+        Validate(
+            (Rule: IsInvalid(user.Id), Parameter: nameof(user.Id)),
+            (Rule: IsInvalid(user.Name), Parameter: nameof(user.Name)));
+    }
+
+    private void ValidateUserId(Guid userId)
+    {
+        Validate((Rule: IsInvalid(userId), Parameter: nameof(userId)));
+    }
+
+    private static dynamic IsInvalid(Guid userId) => new
+    {
+        Condition = userId == default,
+        Message = "Id is required"
+    };
+
+    private static dynamic IsInvalid(string text) => new
+    {
+        Condition = String.IsNullOrWhiteSpace(text) == default,
+        Message = "Text is required"
+    };
+
+    private static void ValidateUserNotNull(User user)
     {
         if (user is null)
         {
             throw new NullUserException();
         }
-        
-        return this.storageBroker.InsertUserAsync(user);
     }
-    
+
+    private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+    {
+        var invalidUserException = new InvalidUserException();
+
+        foreach ((dynamic rule, string parameter) in validations)
+        {
+            if (rule.Condition)
+            {
+                invalidUserException.UpsertDataList(
+                    key: parameter,
+                    value: rule.Message);
+            }
+        }
+        invalidUserException.ThrowIfContainsErrors();
+    }
 }
